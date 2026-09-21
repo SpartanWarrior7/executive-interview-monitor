@@ -1,0 +1,15 @@
+[Unit]
+Description=Check the digest mailbox for watchlist changes every 15 minutes
+Documentation=file:/opt/interview-monitor/deploy/DEPLOY.md
+
+[Timer]
+# Someone who replies to the digest should not have to wait long to see it
+# take effect, and an idle check is two cheap Graph calls.
+OnCalendar=*:0/15
+# Catch up after a reboot rather than skipping the missed check.
+Persistent=true
+RandomizedDelaySec=60
+Unit=interview-commands.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interview Search</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <header class="masthead">
+    <div class="wrap">
+      <h1>Interview<span>Search</span></h1>
+      <p class="tagline">Find interviews with an executive across news, podcasts and video.</p>
+
+      <form id="search-form" class="searchbar" autocomplete="off">
+        <div class="field">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path>
+          </svg>
+          <input id="q" name="q" type="search" placeholder="Search a person, e.g. Satya Nadella"
+                 aria-label="Person to search for" required>
+        </div>
+        <input id="company" name="company" type="text" class="company"
+               placeholder="Company (optional)" aria-label="Company, optional">
+        <button type="submit" id="go">Search</button>
+      </form>
+
+      <div class="controls">
+        <div class="platforms" id="platforms" role="group" aria-label="Platforms"></div>
+        <label class="strict" title="Drop results that never mention the company - use it when the name is common">
+          <input id="strict" type="checkbox">
+          Company must match
+        </label>
+        <label class="window">
+          Past
+          <select id="days" aria-label="Time window">
+            <option value="7">week</option>
+            <option value="30">month</option>
+            <option value="90" selected>3 months</option>
+            <option value="365">year</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap" id="main">
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+    <div id="results" class="grid"></div>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

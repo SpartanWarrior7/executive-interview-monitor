@@ -1,0 +1,30 @@
+[Unit]
+Description=Interview monitor - apply watchlist changes sent by email reply
+Documentation=file:/opt/interview-monitor/deploy/DEPLOY.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=interview
+Group=interview
+WorkingDirectory=/opt/interview-monitor
+EnvironmentFile=/etc/interview-search.env
+
+# Reads COMMAND_MAILBOX, applies add/remove instructions from allowlisted
+# senders, and replies with the resulting list. Add --dry-run to see what it
+# would do without touching the watchlist or answering anyone.
+ExecStart=/usr/bin/python3 run.py --check-mail --verbose
+
+# A handful of Graph calls per message; nothing here should take minutes.
+TimeoutStartSec=180
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+# The watchlist lives here too, not just the seen-database.
+ReadWritePaths=/opt/interview-monitor/state
+
+[Install]
+WantedBy=multi-user.target

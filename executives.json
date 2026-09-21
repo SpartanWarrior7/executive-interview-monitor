@@ -1,0 +1,33 @@
+{
+  "_comment": "Replace the executives list with the people you track. Only 'name' is required. 'aliases' catches nicknames and spelling variants; 'company' disambiguates common names; 'company_aliases' catches other spellings of the company (tickers, former names); 'extra_terms' are extra keywords OR'd into the search.",
+  "_shorthand": "An entry may also be one string carrying the company: \"Jane Doe (Acme)\", \"Jane Doe (CEO, Acme)\", \"Jane Doe, Acme\" or \"Jane Doe - Acme\".",
+  "_company_match": "off = ignore the company | boost = reward a mention (default) | require = drop anything that never mentions it. Set 'company_match': 'require' on a person whose name is common. Can be set per person or here in settings for everyone.",
+  "settings": {
+    "lookback_days": 7,
+    "min_score": 3,
+    "max_results_per_source": 25,
+    "min_video_minutes": 10,
+    "company_match": "boost",
+    "youtube_channels": []
+  },
+  "executives": [
+    {
+      "id": "jensen-huang",
+      "name": "Jensen Huang",
+      "company": "Nvidia",
+      "company_aliases": ["NVDA"],
+      "title": "CEO",
+      "aliases": ["Jen-Hsun Huang"],
+      "extra_terms": []
+    },
+    {
+      "id": "satya-nadella",
+      "name": "Satya Nadella",
+      "company": "Microsoft",
+      "company_aliases": ["MSFT"],
+      "title": "CEO",
+      "aliases": [],
+      "extra_terms": []
+    }
+  ]
+}

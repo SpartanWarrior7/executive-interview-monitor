@@ -1,0 +1,33 @@
+[Unit]
+Description=Interview Search web UI
+Documentation=https://github.com/your-org/interview-monitor
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=interview
+Group=interview
+WorkingDirectory=/opt/interview-monitor
+
+# Credentials live here, not in the unit file. chmod 600, owned by root.
+EnvironmentFile=/etc/interview-search.env
+
+# Bind to loopback only - the reverse proxy is the sole public entrance.
+ExecStart=/usr/bin/python3 serve.py --host 127.0.0.1 --port 8765
+
+Restart=on-failure
+RestartSec=5
+
+# Hardening. The app needs no privileges and writes only to its state dir.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+ReadWritePaths=/opt/interview-monitor/state
+
+[Install]
+WantedBy=multi-user.target

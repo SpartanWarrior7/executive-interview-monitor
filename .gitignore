@@ -1,0 +1,29 @@
+# Runtime state: the record of which interviews have already been reported.
+# Machine-specific - committing it would make one person's history everyone's.
+state/
+reports/
+
+# Credentials. This project reads them from environment variables, but ignore
+# the conventional filenames so a future .env can never be committed by accident.
+.env
+*.env
+!deploy/*.env.example
+secrets.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Local tooling
+.claude/
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store

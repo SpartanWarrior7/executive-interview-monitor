@@ -1,0 +1,28 @@
+[Unit]
+Description=Interview digest - crawl and email new interviews
+Documentation=file:/opt/interview-monitor/deploy/DEPLOY.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=interview
+Group=interview
+WorkingDirectory=/opt/interview-monitor
+EnvironmentFile=/etc/interview-search.env
+
+# --email sends the per-executive digest, including executives with nothing
+# new. Drop --email and add --format digest to preview it in the journal.
+ExecStart=/usr/bin/python3 run.py --email
+
+# The crawl talks to five external services; give it room but not forever.
+TimeoutStartSec=900
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/interview-monitor/state
+
+[Install]
+WantedBy=multi-user.target

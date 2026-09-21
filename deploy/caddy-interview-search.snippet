@@ -1,0 +1,29 @@
+# APPEND this block to the EXISTING /etc/caddy/Caddyfile.
+# Do not replace that file - Caddy is already serving other sites from it.
+#
+# Caddy's config is a sequence of site blocks, so adding one at the end is
+# safe. (If the file opens with a global options block in braces, that must
+# stay first; appending at the end is still correct.)
+#
+# Generate the password hash first - never put a plaintext password here:
+#   caddy hash-password --plaintext 'the-team-password'
+
+interviews.example.org {
+	encode gzip
+
+	basic_auth {
+		# username  bcrypt-hash-from-the-command-above
+		team $2a$14$REPLACE_WITH_REAL_HASH
+	}
+
+	reverse_proxy 127.0.0.1:8765 {
+		# A five-platform search can take ~15s; don't cut it off early.
+		transport http {
+			response_header_timeout 90s
+		}
+	}
+
+	log {
+		output file /var/log/caddy/interview-search.log
+	}
+}

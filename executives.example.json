@@ -1,0 +1,54 @@
+{
+  "_comment": "Template. Copy to executives.json and fill in the executives you track.",
+  "settings": {
+    "lookback_days": 7,
+    "min_score": 3,
+    "max_results_per_source": 25,
+
+    "_company_match_note": "Default for everyone: off = ignore the company | boost = reward a mention | require = drop anything that never mentions it. Override per person; use 'require' for common names.",
+    "company_match": "boost",
+
+    "_youtube_note": "Only applies when YOUTUBE_API_KEY is set. YouTube is the noisiest source - clip channels re-upload other outlets' interviews. Leave youtube_channels empty to rely on heuristics, or list trusted channels for precision.",
+    "min_video_minutes": 10,
+    "youtube_channels": [
+      "Bloomberg Television",
+      "CNBC",
+      "CNN",
+      "Axios",
+      "Y Combinator"
+    ],
+
+    "_slop_note": "Machine-generated podcasts about an executive rather than with them. At or above slop_threshold an item is moved to a 'probably not real' section at the foot of the digest - it is never dropped, because missing a real interview is worse than skimming past a fake one. Lower to 3 to demote more, raise to 6 to demote less, or set 0 to switch demotion off and just record the scores (visible in --format json).",
+    "slop_threshold": 4,
+
+    "_blocked_shows_note": "Shows dropped from the crawl outright - the only place an interview is discarded on purpose. Matched as a case-insensitive substring of the show name, minimum 3 characters. Usually written by replying 'block <show name>' to the digest rather than by hand.",
+    "blocked_shows": [],
+
+    "_trusted_shows_note": "Shows never demoted, whatever they score. For a real outlet whose name happens to trip a heuristic.",
+    "trusted_shows": []
+  },
+  "executives": [
+    {
+      "name": "Jane Executive",
+      "company": "Acme Corp",
+      "company_aliases": ["Acme", "ACME"],
+      "title": "CEO",
+      "aliases": ["Jane Q. Executive", "Jane Smith-Executive"],
+      "extra_terms": ["Acme earnings"]
+    },
+    {
+      "name": "John Officer",
+      "company": "Globex",
+      "title": "CFO"
+    },
+    {
+      "_note": "A common name: only count interviews that mention the company.",
+      "name": "Michael Brown",
+      "company": "Initech",
+      "company_match": "require"
+    },
+    "Pat Chairperson (Soylent)",
+    "Sam Director, CFO, Umbrella Corporation",
+    "Alex Founder - Hooli"
+  ]
+}

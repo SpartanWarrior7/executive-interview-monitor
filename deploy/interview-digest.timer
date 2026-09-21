@@ -1,0 +1,20 @@
+[Unit]
+Description=Daily interview digest
+Documentation=file:/opt/interview-monitor/deploy/DEPLOY.md
+
+[Timer]
+# 07:30 New York time, every day - before the working day, and the timezone
+# follows daylight saving so it does not drift twice a year. Weekends included:
+# podcasts publish then, and a digest that skips them just means Monday's
+# email is the first to mention a Saturday episode.
+OnCalendar=*-*-* 07:30:00 America/New_York
+
+# If the droplet was down at the scheduled time, run once it is back rather
+# than silently skipping a day.
+Persistent=true
+
+# Stagger slightly so every scheduled job on this box does not fire at once.
+RandomizedDelaySec=180
+
+[Install]
+WantedBy=timers.target

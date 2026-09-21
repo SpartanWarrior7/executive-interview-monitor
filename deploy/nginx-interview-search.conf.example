@@ -1,0 +1,33 @@
+# Use this instead of the Caddyfile if nginx already serves example.org.
+# Install to /etc/nginx/sites-available/interview-search and symlink into
+# sites-enabled.
+#
+# Create the password file first:
+#   sudo apt install apache2-utils
+#   sudo htpasswd -c /etc/nginx/.htpasswd-interviews team
+#
+# Then get a certificate (this rewrites the server block for TLS):
+#   sudo certbot --nginx -d interviews.example.org
+
+server {
+    listen 80;
+    server_name interviews.example.org;
+
+    # certbot replaces this block with a 443 listener and adds a redirect.
+
+    auth_basic "Interview Search";
+    auth_basic_user_file /etc/nginx/.htpasswd-interviews;
+
+    location / {
+        proxy_pass http://127.0.0.1:8765;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # A five-platform search can take ~15s; the 60s default is tight
+        # once several people search at once.
+        proxy_read_timeout 90s;
+        proxy_connect_timeout 10s;
+    }
+}
