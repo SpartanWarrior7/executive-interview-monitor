@@ -287,7 +287,8 @@ rejection looks like from the outside. Check, in this order:
 1. **Is the sender address in `COMMAND_SENDERS`?** It defaults to `EMAIL_TO`, so
    replying from a second address of your own is a rejection.
 2. **Did the reply pass DMARC?** Exchange's `Authentication-Results` header must
-   show `dmarc=pass`, or `spf=pass` and `dkim=pass` together. A message whose
+   show `dmarc=pass` (SPF and DKIM passing alone are not enough, so the sender's
+   domain needs a DMARC record; replies from inside the tenant are exempt). A message whose
    headers are missing entirely is rejected on purpose rather than trusted — the
    shared mailbox accepts internet mail, and `From:` is forgeable.
 3. **Is the message still unread?** Anything a human opens in the shared mailbox

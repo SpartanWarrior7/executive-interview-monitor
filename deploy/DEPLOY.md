@@ -505,7 +505,8 @@ rejection, not a sign the job is down. Work down this list:
 1. **Is the sender address in `COMMAND_SENDERS`?** It defaults to `EMAIL_TO`, so
    a reply sent from someone's second address is refused.
 2. **Did the reply pass DMARC?** Exchange's `Authentication-Results` header must
-   show `dmarc=pass`, or `spf=pass` and `dkim=pass` together. Missing headers are
+   show `dmarc=pass` (SPF and DKIM passing alone are not enough, so the sender's
+   domain needs a DMARC record; replies from inside the tenant are exempt). Missing headers are
    rejected on purpose: this is a shared mailbox that accepts internet mail, and
    `From:` is forgeable.
 3. **Is the message still unread?** Anything a human opens in the shared mailbox

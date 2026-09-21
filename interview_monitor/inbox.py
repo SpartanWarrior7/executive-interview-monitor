@@ -21,9 +21,9 @@ not as an Entra application permission - see deploy/DEPLOY.md section 9.
 Nothing here trusts the mail it reads. A shared mailbox accepts internet mail
 and `From:` is trivially forged, so a message is only acted on when it comes
 from an allowlisted address *and* Exchange's own Authentication-Results header
-says the sender passed DMARC. Exchange stamps that header at the edge and
-overwrites anything the sender put there, which is what makes it worth
-checking.
+says the sender passed DMARC. Exchange stamps that header at the edge, on top
+of the message; a sender can add Authentication-Results headers of their own
+further down, so only the topmost one is ever read.
 """
 
 from __future__ import annotations
@@ -130,7 +130,9 @@ def _header_map(raw: list | None) -> dict[str, str] | None:
 
     None means Graph did not give us the headers at all, which is different
     from a message that genuinely has none - the caller must not read absence
-    as permission. Repeated headers are joined, so a check still sees them all.
+    as permission. Repeated headers are joined, so a check still sees them all -
+    except the ones in _TOPMOST_ONLY, where only the receiving server's own copy
+    (the first, since Graph lists headers top-down) can be trusted.
     """
     if raw is None:
         return None
@@ -140,8 +142,16 @@ def _header_map(raw: list | None) -> dict[str, str] | None:
         if not name:
             continue
         value = str(header.get("value", "")).strip()
+        if name in out and name in _TOPMOST_ONLY:
+            continue
         out[name] = f"{out[name]}\n{value}" if name in out else value
     return out
+
+
+# Headers anyone can add to a message they send. Exchange prepends its own
+# verdict, so a forger's copy always sits below it; joining them would let a
+# forged `dmarc=pass` read as Exchange's.
+_TOPMOST_ONLY = frozenset({"authentication-results"})
 
 
 _TAG = re.compile(r"<[^>]+>")
@@ -381,16 +391,18 @@ def _internal(headers: dict[str, str]) -> bool:
 
 
 def _authenticated(headers: dict[str, str]) -> bool:
+    """Internal to the tenant, or DMARC passed for the `From:` domain.
+
+    SPF and DKIM passing are deliberately not enough on their own: both can
+    pass for a domain the attacker owns while `From:` names someone else. Only
+    DMARC ties them to the address the allowlist checks, so an allowlisted
+    sender's domain must publish a DMARC record.
+    """
     if _internal(headers):
         return True
     results = headers.get("authentication-results", "").lower()
-    if not results:
-        return False
-    if "dmarc=pass" in results:
-        return True
-    # Some senders publish no DMARC record; SPF and DKIM both passing is the
-    # equivalent assurance that the envelope was not forged.
-    return "spf=pass" in results and "dkim=pass" in results
+    match = re.search(r"\bdmarc=([a-z]+)", results)
+    return bool(match) and match.group(1) == "pass"
 
 
 def _is_automated(headers: dict[str, str]) -> str:

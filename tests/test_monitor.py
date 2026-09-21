@@ -1105,9 +1105,30 @@ class TestCommandAuth(unittest.TestCase):
         self.assertEqual(verdict.action, REJECT)
         self.assertIn("DMARC", verdict.reason)
 
-    def test_spf_and_dkim_pass_substitute_for_no_dmarc_record(self):
+    def test_spf_and_dkim_pass_without_dmarc_are_rejected(self):
+        # Both can pass for the attacker's own domain while From: is forged;
+        # only DMARC ties them to the allowlisted address.
+        from interview_monitor.inbox import REJECT
         headers = {"authentication-results": "spf=pass; dkim=pass; dmarc=none action=none"}
-        self.assertTrue(self._verdict(self._message(headers=headers)).ok)
+        self.assertEqual(self._verdict(self._message(headers=headers)).action, REJECT)
+
+    def test_a_forged_authentication_header_below_exchanges_is_ignored(self):
+        from interview_monitor.inbox import REJECT, _header_map
+        headers = _header_map([
+            {"name": "Authentication-Results",
+             "value": "spf=pass; dkim=pass; dmarc=fail action=quarantine"},
+            {"name": "Authentication-Results", "value": "dmarc=pass"},  # the forger's
+        ])
+        self.assertEqual(headers["authentication-results"],
+                         "spf=pass; dkim=pass; dmarc=fail action=quarantine")
+        self.assertEqual(self._verdict(self._message(headers=headers)).action, REJECT)
+
+    def test_dmarc_pass_must_be_the_whole_result(self):
+        from interview_monitor.inbox import REJECT
+        for results in ("dmarc=passive", "xdmarc=pass; dmarc=fail", "arc=pass"):
+            headers = {"authentication-results": results}
+            self.assertEqual(self._verdict(self._message(headers=headers)).action,
+                             REJECT, results)
 
     # Exchange's own stamp on mail that never left the tenant. Real headers
     # from a colleague's reply look exactly like this: dmarc=none because it
